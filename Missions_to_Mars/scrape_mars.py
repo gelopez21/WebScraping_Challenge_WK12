@@ -11,8 +11,8 @@ import json
 
 
 def init_browser():
-    browser='chrome'
-    return browser 
+    executable_path = {'executable_path': 'chromedriver.exe'}
+    return Browser('chrome', **executable_path, headless=False)
 
 def scrape():
     ### Mars News Titles
@@ -33,7 +33,9 @@ def scrape():
     response = browser.html
     soup2 = BeautifulSoup(response, 'html.parser')
     images = soup2.find_all('a', class_="fancybox")
+    
     pic_source = []
+
     for image in images:
         picture = image['data-fancybox-href']
         pic_source.append(picture)
@@ -50,10 +52,11 @@ def scrape():
     for content in weather:
           tweet = content.find("p", class_="TweetTextSize TweetTextSize--normal js-tweet-text tweet-text").text
           weather_mars.append(tweet)
-    mars_collection["mars_weather"] = weather_mars[8]
+    mars_collection["mars_weather"] = weather_mars
     
     # Mars Facts
     url_facts = "https://space-facts.com/mars/"
+    browser.visit(url_facts)
     df_facts = pd.read_html(url_facts)[0]
     df_facts.columns = ["Facts","Values"]
     clean_table = df_facts.set_index(["Facts"])
@@ -72,26 +75,26 @@ def scrape():
     cerberus_img = soup4.find_all('div', class_="wide-image-wrapper")
 
     for img in cerberus_img:
-        pic_cerberus = img.find('li')
-        cerberus_full_img = pic_cerberus.find('a')['href']
+        pic = img.find('li')
+        full_img = pic.find('a')['href']
     cerberus_title = soup4.find('h2', class_='title').get_text()
-    cerberus_hem = {"Title": cerberus_title, "url": cerberus_full_img}
+    cerberus_hem = {"Title": cerberus_title, "url": full_img}
 
     hemisphere_image_urls.append(cerberus_hem)
 
     # Schiaparelli Hemisphere
 
     url_schiaparelli = "https://astrogeology.usgs.gov/search/map/Mars/Viking/schiaparelli_enhanced"
-    browser.visit(url_cerberus)
+    browser.visit(url_schiaparelli)
     response_schiaparelli = browser.html
     soup5 = BeautifulSoup(response_schiaparelli, 'html.parser')
     schiaparelli_img = soup5.find_all('div', class_="wide-image-wrapper")
 
     for img in schiaparelli_img:
-        pic_schiaparelli = img.find('li')
-        schiaparelli_full_img = pic_schiaparelli.find('a')['href']
+        pic = img.find('li')
+        full_img = pic.find('a')['href']
     shiaparelli_title = soup5.find('h2', class_='title').get_text()
-    shiaparelli_hem = {"Title": shiaparelli_title, "url": schiaparelli_full_img}
+    shiaparelli_hem = {"Title": shiaparelli_title, "url": full_img}
     
     hemisphere_image_urls.append(shiaparelli_hem)
     
@@ -104,10 +107,10 @@ def scrape():
     syrtris_img = soup6.find_all('div', class_="wide-image-wrapper")
 
     for img in syrtris_img:
-        pic_syrtris = img.find('li')
-        syrtris_full_img = pic_syrtris.find('a')['href']
+        pic = img.find('li')
+        full_img = pic.find('a')['href']
     syrtris_title = soup6.find('h2', class_='title').get_text()
-    syrtris_hem = {"Title": syrtris_title, "url": syrtris_full_img}
+    syrtris_hem = {"Title": syrtris_title, "url": full_img}
 
     hemisphere_image_urls.append(syrtris_hem)
 
@@ -120,10 +123,10 @@ def scrape():
     valles_img = soup7.find_all('div', class_="wide-image-wrapper")
 
     for img in valles_img:
-        pic_valles = img.find('li')
-        valles_full_img = pic_valles.find('a')['href']
+        pic = img.find('li')
+        full_img = pic.find('a')['href']
     valles_title = soup7.find('h2', class_='title').get_text()
-    valles_hem = {"Title": valles_title, "url": valles_full_img}
+    valles_hem = {"Title": valles_title, "url": full_img}
     
     hemisphere_image_urls.append(valles_hem)
 
@@ -131,3 +134,4 @@ def scrape():
     mars_collection["hemisphere_image"] = hemisphere_image_urls
 
     return mars_collection
+
